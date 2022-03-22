@@ -1,6 +1,6 @@
 """
 Program: This module is about .root file particle information as OOP and
-         using pandas output DataFrame format.
+         using pandas outputs DataFrame format.
 Author: You-Wei Hsiao
 Institute: Department of Physics, National Tsing Hua University, Hsinchu, Taiwan
 Mail: hsiao.phys@gapp.nthu.edu.tw
@@ -37,7 +37,7 @@ class classGenParticle():
         self.Eta = data.array('Particle.Eta')
         self.Phi = data.array('Particle.Phi')
         self.length = len(data.array('Particle.PID'))
-        
+
 #     To get the class GenParticle informations array in the i-th(index) event.
     def dataframelize(self, i):
         idx = np.linspace(0, len(self.PID[i])-1, num=len(self.PID[i]))
@@ -51,10 +51,11 @@ class classGenParticle():
                          "PT": self.PT[i],
                          "Eta": self.Eta[i],
                          "Phi": self.Phi[i]
-                        }
+                         }
         df_particle = pd.DataFrame(dict_particle)
         return df_particle
-    
+
+
 """
 def dataframelize(self, i):
         idx = np.linspace(0, len(self.PID[i])-1, num=len(self.PID[i]))
@@ -74,8 +75,8 @@ def dataframelize(self, i):
         print("(# events, # info. = {})".format(df_particle.shape))
         return df_particle
 """
-    
-    
+
+
 # 2. class Jet
 class classJet():
     def __init__(self, data):
@@ -85,59 +86,30 @@ class classJet():
         self.Phi = data.array('Jet.Phi')
         self.Mass = data.array('Jet.Mass')
         self.length = len(data.array('Jet.PT'))
-        
+
 #     To get the class Jet informations array in the i-th(index) event.
     def dataframelize(self, i):
-#         idx = np.linspace(0, len(self.PT[i])-1, num=len(self.PT[i]))
+        #         idx = np.linspace(0, len(self.PT[i])-1, num=len(self.PT[i]))
         dict_jet = {"Mass": self.Mass[i],
                     "PT": self.PT[i],
                     "Eta": self.Eta[i],
                     "Phi": self.Phi[i]
-                   }
+                    }
         df_jet = pd.DataFrame(dict_jet)
         return df_jet
-    
-    
+
+
 # 3. class Event
 class classEvent():
     def __init__(self, data):
         self.data = data
         self.Weight = data.array('Event.Weight')
         self.length = len(data.array('Event.Weight'))
-        
+
 #     To get the class Event informations array in the i-th(index) event.
     def dataframelize(self, i):
-#         idx = np.linspace(0, len(self.Weight[i])-1, num=len(self.Weight[i]))
+        #         idx = np.linspace(0, len(self.Weight[i])-1, num=len(self.Weight[i]))
         dict_event = {"Weight": self.Weight[i]
-                     }
+                      }
         df_event = pd.DataFrame(dict_event)
         return df_event
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-    
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
