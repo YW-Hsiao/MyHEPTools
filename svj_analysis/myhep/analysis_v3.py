@@ -31,7 +31,7 @@ import pyjet
 
 
 ################################################################################
-# 2.                        Define Physical Quantities                         #
+#                        2. Define Physical Quantities                         #
 ################################################################################
 # 2-1. Invariant mass M
 def M(m1, pt1, eta1, phi1, m2, pt2, eta2, phi2):
@@ -80,7 +80,7 @@ def ET(m1, pt1, eta1, phi1, m2, pt2, eta2, phi2):
 
 
 ################################################################################
-# 3.                         Analyze Parton Level Data                         #
+#                    3. Analyze Parton and Truth Level Data                    #
 ################################################################################
 # 3-1. Analyze the dark quark pair, xd and xdx
 def analyze_xdxdx(GP, status=23):
@@ -138,6 +138,60 @@ def analyze_xdxdx(GP, status=23):
         print("{} events are over 2 particles.".format(acc))
         print(_error)
     return df_xdxdx
+
+
+################################################################################
+#                              4. Jet Clustering                               #
+################################################################################
+# 4-1. Select stable final state particle and filter out DM
+def selectStableFinalStateParticle(GP,
+                                   filter=[51, -51, 53, -53, 4900211, -4900211, 4900213, -4900213]):
+    """
+    GP=GenParticle, _=list, i=i-th event, df=dataframe,
+    acc=accumulate, tem=temporary
+    Status=1 is stable final state.
+    """
+    _SFSP, _SFSP_filterDM = [], []
+    if len(filter) == 0:
+        print("There is no dark matter.")
+    elif len(filter) == 1:
+        print("The PID of dark matter is {}.".format(filter))
+    else:
+        print("The PID of dark matter are {}.".format(filter))
+    for i in range(GP.length):
+        dfGP = GP.dataframelize(i)
+        # stable final state particle
+        dfGP_Status1 = dfGP[(dfGP['Status'] == 1)]
+        # without filtering DM
+        dfGP_Status1_tonumpy = dfGP_Status1.to_numpy()
+        dfGP_Status1_tonumpy_trans = np.transpose(dfGP_Status1_tonumpy)
+        pid = dfGP_Status1_tonumpy_trans[0]
+        m = dfGP_Status1_tonumpy_trans[6]
+        pT = dfGP_Status1_tonumpy_trans[7]
+        eta = dfGP_Status1_tonumpy_trans[8]
+        phi = dfGP_Status1_tonumpy_trans[9]
+        _arr_pT_eta_phi_m_pid = np.stack((pT, eta, phi, m, pid))
+        _SFSP.append(_arr_pT_eta_phi_m_pid)
+
+        # with filtering DM
+        dfGP_Status1_filter = dfGP_Status1[~dfGP_Status1['PID'].isin(filter)]
+        dfGP_Status1_filter_tonumpy = dfGP_Status1_filter.to_numpy()
+        dfGP_Status1_filter_tonumpy_trans = np.transpose(
+            dfGP_Status1_filter_tonumpy)
+        pid = dfGP_Status1_filter_tonumpy_trans[0]
+        m = dfGP_Status1_filter_tonumpy_trans[6]
+        pT = dfGP_Status1_filter_tonumpy_trans[7]
+        eta = dfGP_Status1_filter_tonumpy_trans[8]
+        phi = dfGP_Status1_filter_tonumpy_trans[9]
+        _arr_pT_eta_phi_m_pid = np.stack((pT, eta, phi, m, pid))
+        _SFSP_filterDM.append(_arr_pT_eta_phi_m_pid)
+
+    print("{} events are stable final state.".format(len(_SFSP)))
+    print("{} events are stable final state without DM.".format(len(_SFSP_filterDM)))
+    return _SFSP, _SFSP_filterDM
+
+
+# 4-2. Jet clustering
 
 
 # Change mT12 to mT
