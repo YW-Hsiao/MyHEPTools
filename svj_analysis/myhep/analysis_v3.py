@@ -192,6 +192,27 @@ def selectStableFinalStateParticle(GP,
 
 
 # 4-2. Jet clustering
+def jetClustering(list_SFSP, R, p=-1, pTmin=200):
+    """
+    list_SFSP=from selecting stable final state particle,
+    _=list, i=i-th event,
+    R=the cone size of the jet
+    p=the jet clustering algorithm: -1=anti-kt, 0=Cambridge-Aachen(C/A), 1=kt
+    pTmin=the minimum pT of jet
+    """
+    _PseudoJet = []
+    for i in range(len(list_SFSP)):
+        vectors_i = np.core.records.fromarrays(list_SFSP[i],
+                                               dtype=np.dtype([('pT', np.float64),
+                                                               ('eta', np.float64),
+                                                               ('phi', np.float64),
+                                                               ('mass', np.float64),
+                                                               ('PID', np.float64)]))
+        sequence_i = pyjet.cluster(vectors_i, R=R, p=p)
+        jets_i = sequence_i.inclusive_jets(pTmin)  # list of PseudoJets
+        _PseudoJet.append(jets_i)
+
+    return _PseudoJet
 
 
 # Change mT12 to mT
