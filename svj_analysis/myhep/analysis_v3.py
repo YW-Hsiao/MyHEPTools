@@ -215,5 +215,81 @@ def jetClustering(list_SFSP, R, p=-1, pTmin=200):
     return _PseudoJet
 
 
+################################################################################
+#                    5. Analyze the Jets in the Truth Level                    #
+################################################################################
+# 5-1. Preselection
+def preselection_v1(PseudoJet, pT_min, eta_max):
+    """
+    'preselection' function is to do the event preselection, such as minimal pT and
+    maximal eta,
+    * output formats are LISTs of before preselection, after pT preselection,
+    * and after pT & eta preselection.
+    * v1 uses the simple algorithm.
+    ! If there is no PseudoJet in _event_i, I put the empty list in _event_i.
+    PseudoJet=[ event_i(PseudoJet) ] is a list to store all events.
+    pT_min=minial pT, eta_max=maximal eta
+    _=list, i=i-th event,
+    _presel_events=preselection events,
+    _num_events=number of events,
+    _event_i=temporary list of components (pt, eta, phi, mass) of each event
+    _idx=record i-th event when number of PseudoJet = 0
+    """
+    _presel_events_bef, _presel_events_pt, _presel_events_pt_eta = [], [], []
+    _num_events_bef, _num_events_pt, _num_events_pt_eta = [], [], []
+    _idx_bef, _idx_pt, _idx_pt_eta = [], [], []
+    for i in range(len(PseudoJet)):
+        _event_i_bef, _event_i_pt, _event_i_pt_eta = [], [], []
+        for j, jet in enumerate(PseudoJet[i]):
+            # before preselection
+            _event_i_bef.append((jet.pt, jet.eta, jet.phi, jet.mass))
+            #
+            # pT preselection
+            if jet.pt > pT_min:
+                _event_i_pt.append((jet.pt, jet.eta, jet.phi, jet.mass))
+                # print(j, jet)
+                #
+                # eta preselection
+                if abs(jet.eta) < eta_max:
+                    _event_i_pt_eta.append(
+                        (jet.pt, jet.eta, jet.phi, jet.mass))
+
+        # record the event when number of PseudoJet = 0
+        if len(_event_i_pt_eta) == 0:
+            _idx_pt_eta.append(i)
+            if len(_event_i_pt) == 0:
+                _idx_pt.append(i)
+                if len(_event_i_bef) == 0:
+                    _idx_bef.append(i)
+
+        # define np.array() with dtype
+        arr_event_i_bef = np.array(_event_i_bef, dtype=[('pT', '<f8'), ('eta', '<f8'),
+                                                        ('phi', '<f8'), ('mass', '<f8')])
+        arr_event_i_pt = np.array(_event_i_pt, dtype=[('pT', '<f8'), ('eta', '<f8'),
+                                                      ('phi', '<f8'), ('mass', '<f8')])
+        arr_event_i_pt_eta = np.array(_event_i_pt_eta, dtype=[('pT', '<f8'), ('eta', '<f8'),
+                                                              ('phi', '<f8'), ('mass', '<f8')])
+        # append number of events and np.array() to list
+        _num_events_bef.append(arr_event_i_bef.shape[0])
+        _num_events_pt.append(arr_event_i_pt.shape[0])
+        _num_events_pt_eta.append(arr_event_i_pt_eta.shape[0])
+        _presel_events_bef.append(arr_event_i_bef)
+        _presel_events_pt.append(arr_event_i_pt)
+        _presel_events_pt_eta.append(arr_event_i_pt_eta)
+
+    _idx = [_idx_bef, _idx_pt, _idx_pt_eta]
+    print("{} events before preselection".format(len(_presel_events_bef)))
+    print("{} events after pT preselection".format(len(_presel_events_pt)))
+    print("{} events after pT & eta preselections".format(
+        len(_presel_events_pt_eta)))
+    print("-"*80)
+    print("{} events without PseudoJet before preselection".format(len(_idx_bef)))
+    print("{} events without PseudoJet after pT preselection".format(len(_idx_pt)))
+    print("{} events without PseudoJet after pT & eta preselections".format(
+        len(_idx_pt_eta)))
+
+    return _presel_events_bef, _presel_events_pt, _presel_events_pt_eta, _idx
+
+
 # Change mT12 to mT
-# Add M123, M1234, MT123, MT1234, mT123, mT1234.
+# Add M_123, M_1234, MT_123, MT_1234, mT_123, mT_1234.
