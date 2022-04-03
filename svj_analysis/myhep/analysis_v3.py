@@ -33,7 +33,8 @@ import pyjet
 ################################################################################
 #                        2. Define Physical Quantities                         #
 ################################################################################
-# 2-1. Invariant mass M
+# 2-1. Mass quantities of two objects
+# A. Invariant mass M
 def M(m1, pt1, eta1, phi1, m2, pt2, eta2, phi2):
     px1, py1, pz1 = pt1*np.cos(phi1), pt1 * \
         np.sin(phi1), np.sqrt(m1**2+pt1**2)*np.sinh(eta1)
@@ -44,7 +45,7 @@ def M(m1, pt1, eta1, phi1, m2, pt2, eta2, phi2):
     return np.sqrt((e1+e2)**2 - (px1+px2)**2 - (py1+py2)**2 - (pz1+pz2)**2)
 
 
-# 2-2. Transverse mass MT
+# B. Transverse mass MT
 def MT(m1, pt1, eta1, phi1, m2, pt2, eta2, phi2):
     px1, py1, pz1 = pt1*np.cos(phi1), pt1 * \
         np.sin(phi1), np.sqrt(m1**2+pt1**2)*np.sinh(eta1)
@@ -56,7 +57,8 @@ def MT(m1, pt1, eta1, phi1, m2, pt2, eta2, phi2):
     return np.sqrt((ET1+ET2)**2 - (px1+px2)**2 - (py1+py2)**2)
 
 
-# 2-3. Transverse mass mT is invariant under Lorentz boost along the z direction.
+# C. Transverse mass mT
+# * mT is invariant under Lorentz boost along the z direction.
 def mT(m1, pt1, eta1, phi1, m2, pt2, eta2, phi2):
     px1, py1, pz1 = pt1*np.cos(phi1), pt1 * \
         np.sin(phi1), np.sqrt(m1**2+pt1**2)*np.sinh(eta1)
@@ -67,7 +69,7 @@ def mT(m1, pt1, eta1, phi1, m2, pt2, eta2, phi2):
     return np.sqrt((e1+e2)**2 - (pz1+pz2)**2)
 
 
-# 2-4. Transverse energy ET
+# D. Transverse energy ET
 def ET(m1, pt1, eta1, phi1, m2, pt2, eta2, phi2):
     px1, py1, pz1 = pt1*np.cos(phi1), pt1 * \
         np.sin(phi1), np.sqrt(m1**2+pt1**2)*np.sinh(eta1)
@@ -79,12 +81,16 @@ def ET(m1, pt1, eta1, phi1, m2, pt2, eta2, phi2):
     return np.sqrt(m12**2 + (px1+px2)**2 + (py1+py2)**2)
 
 
+# 2-2. Mass quantities of three objects
+
+
 ################################################################################
 #                    3. Analyze Parton and Truth Level Data                    #
 ################################################################################
 # 3-1. Analyze the dark quark pair, xd and xdx
 def analyze_xdxdx(GP, status=23):
     """
+    Analyze the dark quark pair with different status.
     GP=GenParticle, _=list, i=i-th event, df=dataframe,
     acc=accumulate, tem=temporary
     """
@@ -192,8 +198,10 @@ def selectStableFinalStateParticle(GP,
 
 
 # 4-2. Jet clustering
-def jetClustering(list_SFSP, R, p=-1, pTmin=200):
+# A. Version 1
+def jetClustering_v1(list_SFSP, R, p=-1, pTmin=20):
     """
+    Do the jet clustering for each event.
     list_SFSP=from selecting stable final state particle,
     _=list, i=i-th event,
     R=the cone size of the jet
@@ -215,10 +223,15 @@ def jetClustering(list_SFSP, R, p=-1, pTmin=200):
     return _PseudoJet
 
 
+# B. Version 2
+# ! Use np.array([(), (), ...], dtype=[(), (), ...])
+
+
 ################################################################################
 #                    5. Analyze the Jets in the Truth Level                    #
 ################################################################################
 # 5-1. Preselection
+# A. Version 1
 def preselection_v1(PseudoJet, pT_min, eta_max):
     """
     'preselection' function is to do the event preselection, such as minimal pT and
@@ -291,5 +304,24 @@ def preselection_v1(PseudoJet, pT_min, eta_max):
     return _presel_events_bef, _presel_events_pt, _presel_events_pt_eta, _idx
 
 
-# Change mT12 to mT
+# B. Version 2
+# ! Use pt < pT_min and continue in loop
+
+
+# 5-2. MET
+# ! Use GenParticle
+# ! Use PseudoJet before and after preselections
+
+
+# 5-3. Analyze truth jets
+
+
+# 5-4. Analyze truth jets with MET
+
+
+################################################################################
+#                   6. Analyze the Jets in the Detector Level                  #
+################################################################################
+
+
 # Add M_123, M_1234, MT_123, MT_1234, mT_123, mT_1234.
