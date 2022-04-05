@@ -82,6 +82,161 @@ def ET(m1, pt1, eta1, phi1, m2, pt2, eta2, phi2):
 
 
 # 2-2. Mass quantities of three objects
+# A. Invariant mass M
+def M_123(m1, pt1, eta1, phi1, m2, pt2, eta2, phi2, m3, pt3, eta3, phi3):
+    """Invariant mass M of 3 objects, M is defined by M^2 = E^2 - p^2.
+
+    Parameters
+    ----------
+    m1, m2, m3 : float
+        Mass of object i.
+    pt1, pt2, pt3 : float
+        Transverse momentum of object i.
+    eta1, eta2, eta3 : float
+        Pseudorapidity of object i.
+    phi1, phi2, phi3 : float
+        Azimuthal angle of object i.
+
+    Returns
+    -------
+    float
+        Invariant mass M.
+    """
+    # object 1
+    px1, py1 = pt1 * np.cos(phi1), pt1 * np.sin(phi1)
+    pz1 = np.sqrt(m1**2 + pt1**2) * np.sinh(eta1)
+    e1 = np.sqrt(m1**2 + px1**2 + py1**2 + pz1**2)
+    # object 2
+    px2, py2 = pt2 * np.cos(phi2), pt2 * np.sin(phi2)
+    pz2 = np.sqrt(m2**2 + pt2**2) * np.sinh(eta2)
+    e2 = np.sqrt(m2**2 + px2**2 + py2**2 + pz2**2)
+    # object 3
+    px3, py3 = pt3 * np.cos(phi3), pt3 * np.sin(phi3)
+    pz3 = np.sqrt(m3**2 + pt3**2) * np.sinh(eta3)
+    e3 = np.sqrt(m3**2 + px3**2 + py3**2 + pz3**2)
+    return np.sqrt((e1 + e2 + e3)**2
+                   - (px1 + px2 + px3)**2
+                   - (py1 + py2 + py3)**2
+                   - (pz1 + pz2 + pz3)**2)
+
+
+# B. Transverse mass MT
+def MT_123(m1, pt1, eta1, phi1, m2, pt2, eta2, phi2, m3, pt3, eta3, phi3):
+    """Transverse mass MT of 3 objects, MT is defined by
+    M_T^2 = (E_T(1) + E_T(2))^2 - (p_T(1) + p_T(2))^2.
+
+    Parameters
+    ----------
+    m1, m2, m3 : float
+        Mass of object i.
+    pt1, pt2, pt3 : float
+        Transverse momentum of object i.
+    eta1, eta2, eta2 : float
+        Pseudorapidity of object i.
+    phi1, phi2, phi3 : float
+        Azimuthal angle of object i.
+
+    Returns
+    -------
+    float
+        Transverse mass MT.
+    """
+    # object 1
+    px1, py1 = pt1 * np.cos(phi1), pt1 * np.sin(phi1)
+    pz1 = np.sqrt(m1**2 + pt1**2) * np.sinh(eta1)
+    e1 = np.sqrt(m1**2 + px1**2 + py1**2 + pz1**2)
+    et1 = np.sqrt(m1**2 + pt1**2)
+    # object 2
+    px2, py2 = pt2 * np.cos(phi2), pt2 * np.sin(phi2)
+    pz2 = np.sqrt(m2**2 + pt2**2) * np.sinh(eta2)
+    e2 = np.sqrt(m2**2 + px2**2 + py2**2 + pz2**2)
+    et2 = np.sqrt(m2**2 + pt2**2)
+    # object 3
+    px3, py3 = pt3 * np.cos(phi3), pt3 * np.sin(phi3)
+    pz3 = np.sqrt(m3**2 + pt3**2) * np.sinh(eta3)
+    e3 = np.sqrt(m3**2 + px3**2 + py3**2 + pz3**2)
+    et3 = np.sqrt(m3**2 + pt3**2)
+    return np.sqrt((et1 + et2 + et3)**2
+                   - (px1 + px2 + px3)**2
+                   - (py1 + py2 + py3)**2)
+
+
+# C. Transverse mass mT with definition 1
+# * mT is invariant under Lorentz boost along the z direction.
+def mT_123_def_1(m1, pt1, eta1, phi1, m2, pt2, eta2, phi2, m3, pt3, eta3, phi3):
+    """Transverse mass mT of 3 objects, mT is defined by m_T^2 = E^2 - p_z^2.
+
+    Parameters
+    ----------
+    m1, m2, m3 : float
+        Mass of object i.
+    pt1, pt2, pt3 : float
+        Transverse mass of object i.
+    eta1, eta2, eta3 : float
+        Pseudorapidity of object i.
+    phi1, phi2, phi3 : float
+        Azimuthal angle of object i.
+
+    Returns
+    -------
+    float
+        Transverse mass mT.
+    """
+    # object 1
+    px1, py1 = pt1 * np.cos(phi1), pt1 * np.sin(phi1)
+    pz1 = np.sqrt(m1**2 + pt1**2) * np.sinh(eta1)
+    e1 = np.sqrt(m1**2 + px1**2 + py1**2 + pz1**2)
+    # object 2
+    px2, py2 = pt2 * np.cos(phi2), pt2 * np.sin(phi2)
+    pz2 = np.sqrt(m2**2 + pt2**2) * np.sinh(eta2)
+    e2 = np.sqrt(m2**2 + px2**2 + py2**2 + pz2**2)
+    # object 3
+    px3, py3 = pt3 * np.cos(phi3), pt3 * np.sin(phi3)
+    pz3 = np.sqrt(m3**2 + pt3**2) * np.sinh(eta3)
+    e3 = np.sqrt(m3**2 + px3**2 + py3**2 + pz3**2)
+    return np.sqrt((e1 + e2 + e3)**2 - (pz1 + pz2 + pz3)**2)
+
+
+# D. Transverse mass mT with definition 2 or Transverse energy ET
+# * mT is invariant under Lorentz boost along the z direction.
+def mT_123_def_2(m1, pt1, eta1, phi1, m2, pt2, eta2, phi2, m3, pt3, eta3, phi3):
+    """Transverse mass mT of 3 objects, mT is defined by m_T^2 = m^2 + p_T^2.
+
+    Parameters
+    ----------
+    m1, m2, m3 : float
+        Mass of object i.
+    pt1, pt2, pt3 : float
+        Transverse momentum of object i.
+    eta1, eta2, eta3 : float
+        Pseudorapidity of object i.
+    phi1, phi2, phi3 : float
+        Azimuthal angle of object i.
+
+    Returns
+    -------
+    float
+        Transverse mass mT.
+    """
+    # object 1
+    px1, py1 = pt1 * np.cos(phi1), pt1 * np.sin(phi1)
+    pz1 = np.sqrt(m1**2 + pt1**2) * np.sinh(eta1)
+    e1 = np.sqrt(m1**2 + px1**2 + py1**2 + pz1**2)
+    # object 2
+    px2, py2 = pt2 * np.cos(phi2), pt2 * np.sin(phi2)
+    pz2 = np.sqrt(m2**2 + pt2**2) * np.sinh(eta2)
+    e2 = np.sqrt(m2**2 + px2**2 + py2**2 + pz2**2)
+    # object 3
+    px3, py3 = pt3 * np.cos(phi3), pt3 * np.sin(phi3)
+    pz3 = np.sqrt(m3**2 + pt3**2) * np.sinh(eta3)
+    e3 = np.sqrt(m3**2 + px3**2 + py3**2 + pz3**2)
+    # invariant mass of 3 objects
+    m123 = np.sqrt((e1 + e2 + e3)**2 - (px1 + px2 + px3)**2
+                   - (py1 + py2 + py3)**2 - (pz1 + pz2 + pz3)**2)
+    return np.sqrt(m123**2 + (px1 + px2 + px3)**2 + (py1 + py2 + py3)**2)
+
+
+# 2-3. Mass quantities of four objects
 
 
 ################################################################################
