@@ -468,15 +468,91 @@ def preselection_v1(PseudoJet, pT_min, eta_max):
 # ! Use PseudoJet before and after preselections
 
 
-# 5-3. Analyze truth jets
+# 5-3. Analyze the truth jet (Scheme 1)
+# A. Version 1
+def analyze_truthJet_scheme1_v1(data_presel):
+    """This function is my scheme 1 with version 1 which analyzes jet in truth level.
+
+    Parameters
+    ----------
+    data_presel : list
+        Record all preselected events in list data_presel.
+
+    Returns
+    -------
+    (array 1, array 2, array 3)
+        array 1 is number of jet, array 2 is observables of dijet,
+        and array 3 is observables of trijet.
+    """
+    # * _=list, i=i-th event
+    _N_jet = []
+    _pT_1_jj, _pT_2_jj, _eta_1_jj, _eta_2_jj = [], [], [], []
+    _M_jj, _MT_jj, _mT_jj, _Dphi, _Deta = [], [], [], [], []
+    _pT_1_jjj, _pT_2_jjj, _pT_3_jjj, _eta_1_jjj, _eta_2_jjj, _eta_3_jjj = [], [], [], [], [], []
+    _M_jjj, _MT_jjj, _mT_jjj = [], [], []
+    _idx_jj, _idx_jjj = [], []
+    for i in range(len(data_presel)):
+        # number of jets
+        _N_jet.append(data_presel[i].shape[0])
+        # at least dijet
+        if np.shape(data_presel[i])[0] >= 2:
+            pt, eta = data_presel[i]['pT'], data_presel[i]['eta']
+            phi, mass = data_presel[i]['phi'], data_presel[i]['mass']
+            _pT_1_jj.append(pt[0])
+            _pT_2_jj.append(pt[1])
+            _eta_1_jj.append(eta[0])
+            _eta_2_jj.append(eta[1])
+            _M_jj.append(M(mass[0], pt[0], eta[0], phi[0],
+                           mass[1], pt[1], eta[1], phi[1]))
+            _MT_jj.append(MT(mass[0], pt[0], eta[0], phi[0],
+                             mass[1], pt[1], eta[1], phi[1]))
+            _mT_jj.append(mT(mass[0], pt[0], eta[0], phi[0],
+                             mass[1], pt[1], eta[1], phi[1]))
+            Dphi = abs(phi[0] - phi[1])
+            if Dphi > np.pi:
+                _Dphi.append(2*np.pi - Dphi)
+            else:
+                _Dphi.append(Dphi)
+            _Deta.append(abs(eta[0] - eta[1]))
+            # index of selected event
+            _idx_jj.append(i)
+        # at least trijet
+        if np.shape(data_presel[i])[0] >= 3:
+            pt, eta = data_presel[i]['pT'], data_presel[i]['eta']
+            phi, mass = data_presel[i]['phi'], data_presel[i]['mass']
+            _pT_1_jjj.append(pt[0])
+            _pT_2_jjj.append(pt[1])
+            _pT_3_jjj.append(pt[2])
+            _eta_1_jjj.append(eta[0])
+            _eta_2_jjj.append(eta[1])
+            _eta_3_jjj.append(eta[2])
+            _M_jjj.append(M_123(mass[0], pt[0], eta[0], phi[0],
+                                mass[1], pt[1], eta[1], phi[1],
+                                mass[2], pt[2], eta[2], phi[2]))
+            _MT_jjj.append(MT_123(mass[0], pt[0], eta[0], phi[0],
+                                  mass[1], pt[1], eta[1], phi[1],
+                                  mass[2], pt[2], eta[2], phi[2]))
+            _mT_jjj.append(mT_123_def_1(mass[0], pt[0], eta[0], phi[0],
+                                        mass[1], pt[1], eta[1], phi[1],
+                                        mass[2], pt[2], eta[2], phi[2]))
+            # index of selected event
+            _idx_jjj.append(i)
+    # collect observables to np.array()
+    arr_N_jet = np.array(_N_jet)
+    arr_jj = np.array([_pT_1_jj, _pT_2_jj, _eta_1_jj, _eta_2_jj, _M_jj,
+                       _MT_jj, _mT_jj, _Dphi, _Deta, _idx_jj])
+    arr_jjj = np.array([_pT_1_jjj, _pT_2_jjj, _pT_3_jjj, _eta_1_jjj, _eta_2_jjj,
+                        _eta_3_jjj, _M_jjj, _MT_jjj, _mT_jjj, _idx_jjj])
+
+    print("{} events in the array of number of jets.".format(len(_N_jet)))
+    print("{} selected events in dijet.".format(len(_idx_jj)))
+    print("{} selected events in trijet.".format(len(_idx_jjj)))
+    return arr_N_jet, arr_jj, arr_jjj
 
 
-# 5-4. Analyze truth jets with MET
+# 5-4. Analyze the truth jet with MET
 
 
 ################################################################################
 #                   6. Analyze the Jets in the Detector Level                  #
 ################################################################################
-
-
-# Add M_123, M_1234, MT_123, MT_1234, mT_123, mT_1234.
