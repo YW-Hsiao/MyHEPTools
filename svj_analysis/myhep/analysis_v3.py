@@ -12,8 +12,13 @@ Program: This module is to analyze the SVJ data and
 Author: You-Wei Hsiao
 Institute: Department of Physics, National Tsing Hua University, Hsinchu, Taiwan
 Mail: hsiao.phys@gapp.nthu.edu.tw
-History: 2022/03/18 First release and the version 3.
+History: 2022/03/18 First release, the version 3, packages, and basic mass functions.
 Version: v.3.0
+History (v.3.1): 2022/03/21 analyze_xdxdx.
+History (v.3.2): 2022/03/23 Jet clustering, selectStableFinalStateParticle and jetClustering.
+History (v.3.3): 2022/04/02 preselection_v1.
+History (v.3.4): 2022/04/07 analyze_truthJet_scheme1_v1.
+History (v.3.5): 2022/04/08 analyze_truthJet_scheme1_v2.
 """
 
 
@@ -234,9 +239,6 @@ def mT_123_def_2(m1, pt1, eta1, phi1, m2, pt2, eta2, phi2, m3, pt3, eta3, phi3):
     m123 = np.sqrt((e1 + e2 + e3)**2 - (px1 + px2 + px3)**2
                    - (py1 + py2 + py3)**2 - (pz1 + pz2 + pz3)**2)
     return np.sqrt(m123**2 + (px1 + px2 + px3)**2 + (py1 + py2 + py3)**2)
-
-
-# 2-3. Mass quantities of four objects
 
 
 ################################################################################
@@ -550,9 +552,71 @@ def analyze_truthJet_scheme1_v1(data_presel):
     return arr_N_jet, arr_jj, arr_jjj
 
 
-# 5-4. Analyze the truth jet with MET
+# B. Version 2
+def analyze_truthJet_scheme1_v2(data_presel):
+    _N_jet = []
+    _observable_jj, _observable_jjj = [], []
+    for i in range(len(data_presel)):
+        # number of jets
+        _N_jet.append(data_presel[i].shape[0])
+        # at least dijet
+        if data_presel[i].shape[0] >= 2:
+            pt, eta = data_presel[i]['pT'], data_presel[i]['eta']
+            phi, mass = data_presel[i]['phi'], data_presel[i]['mass']
+            dphi = abs(phi[0] - phi[1])
+            if dphi > np.pi:
+                Dphi = 2*np.pi - dphi
+            else:
+                Dphi = dphi
+            Deta = abs(eta[0] - eta[1])
+            _observable_jj.append([pt[0], pt[1], eta[0], eta[1],
+                                   M(mass[0], pt[0], eta[0], phi[0],
+                                     mass[1], pt[1], eta[1], phi[1]),
+                                   MT(mass[0], pt[0], eta[0], phi[0],
+                                      mass[1], pt[1], eta[1], phi[1]),
+                                   mT(mass[0], pt[0], eta[0], phi[0],
+                                      mass[1], pt[1], eta[1], phi[1]),
+                                   Dphi, Deta, i])
+        # at least trijet
+        if data_presel[i].shape[0] >= 3:
+            pt, eta = data_presel[i]['pT'], data_presel[i]['eta']
+            phi, mass = data_presel[i]['phi'], data_presel[i]['mass']
+            _observable_jjj.append([pt[0], pt[1], pt[2], eta[0], eta[1], eta[2],
+                                    M_123(mass[0], pt[0], eta[0], phi[0],
+                                          mass[1], pt[1], eta[1], phi[1],
+                                          mass[2], pt[2], eta[2], phi[2]),
+                                    MT_123(mass[0], pt[0], eta[0], phi[0],
+                                           mass[1], pt[1], eta[1], phi[1],
+                                           mass[2], pt[2], eta[2], phi[2]),
+                                    mT_123_def_1(mass[0], pt[0], eta[0], phi[0],
+                                                 mass[1], pt[1], eta[1], phi[1],
+                                                 mass[2], pt[2], eta[2], phi[2]),
+                                    i])
+    # transform to np.array() and print the information of array
+    arr_N_jet = np.array(_N_jet)
+    arr_observable_jj = np.array(_observable_jj)
+    arr_observable_jjj = np.array(_observable_jjj)
+    print("{} events in the array of number of jets.".format(
+        arr_N_jet.shape[0]))
+    print("{} selected events and {} observables in dijet.".format(arr_observable_jj.shape[0],
+                                                                   arr_observable_jj.shape[1]))
+    print("{} selected events and {} observables in trijet.".format(arr_observable_jjj.shape[0],
+                                                                    arr_observable_jjj.shape[1]))
+    # construct DataFrame from numpy ndarray
+    df_N_jet = pd.DataFrame(arr_N_jet, columns=['N_jet'])
+    df_jj = pd.DataFrame(arr_observable_jj,
+                         columns=['pT_1', 'pT_2', 'eta_1', 'eta_2', 'M_jj',
+                                  'MT_jj', 'mT_jj', 'Dphi', 'Deta', 'selected'])
+    df_jjj = pd.DataFrame(arr_observable_jjj, columns=['pT_1', 'pT_2', 'pT_3',
+                                                       'eta_1', 'eta_2', 'eta_3',
+                                                       'M_jjj', 'MT_jjj', 'mT_jjj', 'selected'])
+    return df_N_jet, df_jj, df_jjj
+
+
+# 5-4. Analyze the truth jet and MET (Scheme 1)
 
 
 ################################################################################
 #                   6. Analyze the Jets in the Detector Level                  #
 ################################################################################
+# ! coming soon
