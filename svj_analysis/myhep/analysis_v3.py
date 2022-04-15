@@ -468,6 +468,39 @@ def preselection_v1(PseudoJet, pT_min, eta_max):
 # 5-2. MET
 # ! Use GenParticle
 # ! Use PseudoJet before and after preselections
+def MET_visParticles_v1(sfsp):
+    """Calculate missing transverse energy vector,
+    ndarray is input and convenient to analyze truth jet and MET,
+    and DataFrame is convenient to plot the histogram.
+
+    Parameters
+    ----------
+    sfsp : list with array elements
+        Each array is (pT, eta, phi, mass, pid) 
+
+    Returns
+    -------
+    MET : ndarray and DataFrame
+        ndarray with field names of (MET, phi, METx, METy)
+    """
+    # * _=list, i=i-th event
+    _met_i = []
+    for i in range(len(sfsp)):
+        pt, eta = sfsp[i][0], sfsp[i][1]
+        phi, mass = sfsp[i][2], sfsp[i][3]
+        px, py = pt * np.cos(phi), pt * np.sin(phi)
+        pxnet_invis, pynet_invis = -np.sum(px), -np.sum(py)
+        ptnet_invis = np.sqrt(pxnet_invis**2 + pynet_invis**2)
+        phinet_invis = np.arctan2(pynet_invis, pxnet_invis)
+        _met_i.append((ptnet_invis, phinet_invis, pxnet_invis, pynet_invis))
+    # construct numpy ndarray with dtype
+    arr_met = np.array(_met_i, dtype=[('MET', '<f8'), ('phi', '<f8'),
+                                      ('METx', '<f8'), ('METy', '<f8')])
+    # construct pandas DataFrame
+    df_met = pd.DataFrame(arr_met, columns=['MET', 'phi', 'METx', 'METy'])
+
+    print("{} events in MET data.".format(arr_met.shape[0]))
+    return arr_met, df_met
 
 
 # 5-3. Analyze the truth jet (Scheme 1)
