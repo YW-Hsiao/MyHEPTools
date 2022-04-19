@@ -647,6 +647,93 @@ def analyze_truthJet_scheme1_v2(data_presel):
 
 
 # 5-4. Analyze the truth jet and MET (Scheme 1)
+def analyze_truthJet_MET_scheme1_v1(data_presel, data_met):
+    """This function is my scheme 1 with version 1 to
+    analyze truth jet and MET in truth level.
+
+    Parameters
+    ----------
+    data_presel : list
+        Record all preselected events in list data_presel.
+        Each event data_presel[i] records PseudoJet information.
+    data_met : ndarray with dtype=['MET', 'phi', 'METx', 'METy']
+        Record the MET informations of all events.
+
+    Returns
+    -------
+    observables: DataFrame
+        Observables of truth jet and MET.
+    """
+    _jj_met, _jjj_met = [], []
+    for i in range(len(data_presel)):
+        # dijet
+        if data_presel[i].shape[0] >= 2:
+            # data
+            pt, eta = data_presel[i]['pT'], data_presel[i]['eta']
+            phi, mass = data_presel[i]['phi'], data_presel[i]['mass']
+            met, met_phi = data_met['MET'][i], data_met['phi'][i]
+            metx, mety = data_met['METx'][i], data_met['METy'][i]
+            # transformation and 4-momentum of dijet
+            px, py = pt * np.cos(phi), pt * np.sin(phi)
+            pz = np.sqrt(mass**2 + pt**2) * np.sinh(eta)
+            e = np.sqrt(mass**2 + px**2 + py**2 + pz**2)
+            # jj = np.array([(e[0]+e[1], px[0]+px[1], py[0]+py[1], pz[0]+pz[1])],
+            #   dtype=[('E', '<f8'), ('px', '<f8'), ('py', '<f8'), ('pz', '<f8')])
+            jj = np.array([e[0]+e[1], px[0]+px[1], py[0]+py[1], pz[0]+pz[1]])
+            m_jj = np.sqrt(jj[0]**2 - jj[1]**2 - jj[2]**2 - jj[3]**2)
+            et_jj = np.sqrt(m_jj**2 + jj[1]**2 + jj[2]**2)
+            mt_jj_met = np.sqrt((et_jj + met)**2 -
+                                (jj[1] + metx)**2 - (jj[2] + mety)**2)
+            phi_jj = np.arctan2(jj[2], jj[1])
+            dphi_jj_met = abs(phi_jj - met_phi)
+            if dphi_jj_met > np.pi:
+                Dphi_jj_met = 2*np.pi - dphi_jj_met
+            else:
+                Dphi_jj_met = dphi_jj_met
+            Dphi_j_met = np.absolute(phi - met_phi)
+            Dphi_j_met[Dphi_j_met > np.pi] = 2 * \
+                np.pi - Dphi_j_met[Dphi_j_met > np.pi]
+            _jj_met.append([mt_jj_met, Dphi_jj_met, Dphi_j_met[0],
+                            Dphi_j_met[1], np.min(Dphi_j_met[:4]), i])
+        # trijet
+        if data_presel[i].shape[0] >= 3:
+            # data
+            pt, eta = data_presel[i]['pT'], data_presel[i]['eta']
+            phi, mass = data_presel[i]['phi'], data_presel[i]['mass']
+            met, met_phi = data_met['MET'][i], data_met['phi'][i]
+            metx, mety = data_met['METx'][i], data_met['METy'][i]
+            # transformation and 4-momentum of trijet
+            px, py = pt * np.cos(phi), pt * np.sin(phi)
+            pz = np.sqrt(mass**2 + pt**2) * np.sinh(eta)
+            e = np.sqrt(mass**2 + px**2 + py**2 + pz**2)
+            jjj = np.array([e[0]+e[1]+e[2], px[0]+px[1]+px[2],
+                            py[0]+py[1]+py[2], pz[0]+pz[1]+pz[2]])
+            m_jjj = np.sqrt(jjj[0]**2 - jjj[1]**2 - jjj[2]**2 - jjj[3]**2)
+            et_jjj = np.sqrt(m_jjj**2 + jjj[1]**2 + jjj[2]**2)
+            mt_jjj_met = np.sqrt((et_jjj + met)**2 -
+                                 (jjj[1] + metx)**2 - (jjj[2] + mety)**2)
+            phi_jjj = np.arctan2(jjj[2], jjj[1])
+            dphi_jjj_met = abs(phi_jjj - met_phi)
+            if dphi_jjj_met > np.pi:
+                Dphi_jjj_met = 2*np.pi - dphi_jjj_met
+            else:
+                Dphi_jjj_met = dphi_jjj_met
+            Dphi_j_met = np.absolute(phi - met_phi)
+            Dphi_j_met[Dphi_j_met > np.pi] = 2 * \
+                np.pi - Dphi_j_met[Dphi_j_met > np.pi]
+            _jjj_met.append([mt_jjj_met, Dphi_jjj_met, Dphi_j_met[0], Dphi_j_met[1],
+                             Dphi_j_met[2], np.min(Dphi_j_met[:4]), i])
+    # construtct ndarray and DataFrame
+    arr_jj_met = np.array(_jj_met)
+    arr_jjj_met = np.array(_jjj_met)
+    df_jj_met = pd.DataFrame(arr_jj_met,
+                             columns=['MT_jj_MET', 'Dphi_jj_MET', 'Dphi_j1_MET',
+                                      'Dphi_j2_MET', 'min_Dphi_j_MET', 'selected'])
+    df_jjj_met = pd.DataFrame(arr_jjj_met,
+                              columns=['MT_jjj_MET', 'Dphi_jjj_MET',
+                                       'Dphi_j1_MET', 'Dphi_j2_MET', 'Dphi_j3_MET',
+                                       'min_Dphi_j_MET', 'selected'])
+    return df_jj_met, df_jjj_met
 
 
 ################################################################################
