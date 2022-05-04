@@ -696,7 +696,9 @@ def analyze_truthJet_MET_scheme1_v1(data_presel, data_met):
             Dphi_j_met[Dphi_j_met > np.pi] = 2 * \
                 np.pi - Dphi_j_met[Dphi_j_met > np.pi]
             _jj_met.append([mt_jj_met, Dphi_jj_met, Dphi_j_met[0],
-                            Dphi_j_met[1], np.min(Dphi_j_met[:4]), i])
+                            Dphi_j_met[1], np.min(Dphi_j_met),
+                            np.min(Dphi_j_met[:4]), np.min(Dphi_j_met[:6]),
+                            np.min(Dphi_j_met[:9]), i])
         # trijet
         if data_presel[i].shape[0] >= 3:
             # data
@@ -724,17 +726,21 @@ def analyze_truthJet_MET_scheme1_v1(data_presel, data_met):
             Dphi_j_met[Dphi_j_met > np.pi] = 2 * \
                 np.pi - Dphi_j_met[Dphi_j_met > np.pi]
             _jjj_met.append([mt_jjj_met, Dphi_jjj_met, Dphi_j_met[0], Dphi_j_met[1],
-                             Dphi_j_met[2], np.min(Dphi_j_met[:4]), i])
+                             Dphi_j_met[2], np.min(Dphi_j_met),
+                             np.min(Dphi_j_met[:4]), np.min(Dphi_j_met[:6]),
+                             np.min(Dphi_j_met[:9]), i])
     # construtct ndarray and DataFrame
     arr_jj_met = np.array(_jj_met)
     arr_jjj_met = np.array(_jjj_met)
     df_jj_met = pd.DataFrame(arr_jj_met,
                              columns=['MT_jj_MET', 'Dphi_jj_MET', 'Dphi_j1_MET',
-                                      'Dphi_j2_MET', 'min_Dphi_j_MET', 'selected'])
+                                      'Dphi_j2_MET', 'min_Dphi_j_MET', 'min4_Dphi_j_MET',
+                                      'min6_Dphi_j_MET', 'min9_Dphi_j_MET', 'selected'])
     df_jjj_met = pd.DataFrame(arr_jjj_met,
                               columns=['MT_jjj_MET', 'Dphi_jjj_MET',
                                        'Dphi_j1_MET', 'Dphi_j2_MET', 'Dphi_j3_MET',
-                                       'min_Dphi_j_MET', 'selected'])
+                                       'min_Dphi_j_MET', 'min4_Dphi_j_MET',
+                                       'min6_Dphi_j_MET', 'min9_Dphi_j_MET', 'selected'])
     return df_jj_met, df_jjj_met
 
 
