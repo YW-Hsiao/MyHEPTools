@@ -730,9 +730,13 @@ def analyze_truthJet_MET_scheme1_v1(data_presel, data_met):
                              Dphi_j_met[2], np.min(Dphi_j_met),
                              np.min(Dphi_j_met[:4]), np.min(Dphi_j_met[:6]),
                              np.min(Dphi_j_met[:9]), i])
-    # construtct ndarray and DataFrame
+    # construtct ndarray & DataFrame and print the information of array
     arr_jj_met = np.array(_jj_met)
     arr_jjj_met = np.array(_jjj_met)
+    print("{} selected events and {} observables in dijet and MET.".format(arr_jj_met.shape[0],
+                                                                           arr_jj_met.shape[1]))
+    print("{} selected events and {} observables in trijet and MET.".format(arr_jjj_met.shape[0],
+                                                                            arr_jjj_met.shape[1]))
     df_jj_met = pd.DataFrame(arr_jj_met,
                              columns=['MT_jj_MET', 'Dphi_jj_MET', 'Dphi_j1_MET',
                                       'Dphi_j2_MET', 'min_Dphi_j_MET', 'min4_Dphi_j_MET',
