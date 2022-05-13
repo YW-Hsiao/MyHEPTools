@@ -6,6 +6,7 @@ Author: You-Wei Hsiao
 Institute: Department of Physics, National Tsing Hua University, Hsinchu, Taiwan
 Mail: hsiao.phys@gapp.nthu.edu.tw
 History (v.3.0): 2022/05/06 First release, create plotting_basic function.
+History (v.3.1): 2022/05/13 Debug minor locator when y-axis is 'log' scale.
 """
 
 
@@ -18,7 +19,7 @@ History (v.3.0): 2022/05/06 First release, create plotting_basic function.
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
+from matplotlib.ticker import (MultipleLocator, AutoMinorLocator, LogLocator)
 
 
 ################################################################################
@@ -141,9 +142,11 @@ def plotting_basic(obs, dataset, binning, data_color, data_label,
 # *       selected=[[array_like_1=len(df_1)], [array_like_2=len(df_2)], ...]
 def plotting(obs, dataset, binning, data_color, data_label, weight=None,
              selected=[], histtype='step', align='mid', where='post',
-             figsize=(10, 10), suptitle=None, set_title='set_title',
+             figsize=(7, 7), suptitle=None, set_title='set_title',
              legend_loc='upper right', legend_bbox_to_anchor=(1, 1),
-             xlabel=r'$x$', ylabel=r'$y$', yscale='linear', xlim=None, ylim=None,
+             xlabel=r'$x$', ylabel=r'$y$', yscale='linear',
+             y_minor_multiple_base=1.0, y_minor_log_subs='auto',
+             xlim=None, ylim=None,
              text=[], text_xy=(0.1, 0.9), savefig="figure.pdf"):
     """
     Plot advanced histogram figure. It works for multiple datasets with
@@ -204,6 +207,11 @@ def plotting(obs, dataset, binning, data_color, data_label, weight=None,
         Set the y-axis scale.
         The strings {"linear", "log", "symlog", "logit", ...} are the axis scale
         type to apply.
+    y_minor_multiple_base : float, default 0.1
+        Set a tick on each integer multiple of a base within the view interval.
+    y_minor_log_subs : str or None or sequence of float, default 'auto'
+        Determine the tick locations for log axes.
+        Gives the multiples of integer powers of the base at which to place ticks.
     xlim : tuple (float, float), optional, by default None
         Set the x-axis view limits (left, right).
     ylim : tuple (float, float), optional, by default None
@@ -274,7 +282,10 @@ def plotting(obs, dataset, binning, data_color, data_label, weight=None,
     ax.set_ylim(ylim)
     # the appearance of ticks, tick labels, and gridlines of the Axes
     ax.xaxis.set_minor_locator(AutoMinorLocator())
-    ax.yaxis.set_minor_locator(AutoMinorLocator())
+    if ax.get_yscale() == 'log':
+        ax.yaxis.set_minor_locator(LogLocator(base=10, subs=y_minor_log_subs))
+    else:
+        ax.yaxis.set_minor_locator(MultipleLocator(base=y_minor_multiple_base))
     ax.tick_params(which='both', direction='in', top=True, right=True)
     ax.tick_params(which='major', length=7, width=1.2, labelsize=12)
     ax.tick_params(which='minor', length=4)
