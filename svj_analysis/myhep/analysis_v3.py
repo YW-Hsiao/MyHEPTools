@@ -29,6 +29,7 @@ History (v.3.8): 2022/05/04 add min_all,6,9_Dphi_j_MET
 #                              1. Import Packages                              #
 ################################################################################
 # The Python Standard Library
+import sys
 
 # The Third-Party Library
 import math
@@ -255,23 +256,34 @@ def analyze_xdxdx(GP, status=23):
     acc=accumulate, tem=temporary
     """
     _M, _MT, _mT, _ET = [], [], [], []
-    _Dphi, _Deta, _eta_xd, _eta_xdx = [], [], [], []
+    _Dphi, _Deta = [], []
+    _pT_xd, _pT_xdx, _eta_xd, _eta_xdx = [], [], [], []
     _error = []
     acc = 0
     for i in range(GP.length):
         dfGP = GP.dataframelize(i)
         dfGP_DQ_Status = dfGP[(abs(dfGP['PID']) == 4900101)
                               & (dfGP['Status'] == status)]
-        m1 = dfGP_DQ_Status.iloc[0, 6]
-        pt1 = dfGP_DQ_Status.iloc[0, 7]
-        eta1 = dfGP_DQ_Status.iloc[0, 8]
-        phi1 = dfGP_DQ_Status.iloc[0, 9]
-        m2 = dfGP_DQ_Status.iloc[1, 6]
-        pt2 = dfGP_DQ_Status.iloc[1, 7]
-        eta2 = dfGP_DQ_Status.iloc[1, 8]
-        phi2 = dfGP_DQ_Status.iloc[1, 9]
-        eta_xd = dfGP_DQ_Status[(dfGP_DQ_Status['PID'] == 4900101)].iat[0, 8]
-        eta_xdx = dfGP_DQ_Status[(dfGP_DQ_Status['PID'] == -4900101)].iat[0, 8]
+        if dfGP_DQ_Status.shape[0] != 2:
+            acc += 1
+            _error.append(i)
+            dfGP_DQ_Status = dfGP[(abs(dfGP['PID']) == 4900101)
+                                  & (dfGP['Status'] == 1)]
+            if dfGP_DQ_Status.shape[0] != 2:
+                sys.exit(
+                    f"{i} event has no +-4900101 with status = {status} and 1.")
+            print(f"* Skip event {i}")
+            continue
+        m1 = dfGP_DQ_Status[dfGP_DQ_Status['PID'] == 4900101].iat[0, 6]
+        pt1 = dfGP_DQ_Status[dfGP_DQ_Status['PID'] == 4900101].iat[0, 7]
+        eta1 = dfGP_DQ_Status[dfGP_DQ_Status['PID'] == 4900101].iat[0, 8]
+        phi1 = dfGP_DQ_Status[dfGP_DQ_Status['PID'] == 4900101].iat[0, 9]
+        m2 = dfGP_DQ_Status[dfGP_DQ_Status['PID'] == -4900101].iat[0, 6]
+        pt2 = dfGP_DQ_Status[dfGP_DQ_Status['PID'] == -4900101].iat[0, 7]
+        eta2 = dfGP_DQ_Status[dfGP_DQ_Status['PID'] == -4900101].iat[0, 8]
+        phi2 = dfGP_DQ_Status[dfGP_DQ_Status['PID'] == -4900101].iat[0, 9]
+        # eta_xd = dfGP_DQ_Status[(dfGP_DQ_Status['PID'] == 4900101)].iat[0, 8]
+        # eta_xdx = dfGP_DQ_Status[(dfGP_DQ_Status['PID'] == -4900101)].iat[0, 8]
 
         _M.append(M(m1, pt1, eta1, phi1, m2, pt2, eta2, phi2))
         _MT.append(MT(m1, pt1, eta1, phi1, m2, pt2, eta2, phi2))
@@ -283,12 +295,10 @@ def analyze_xdxdx(GP, status=23):
         else:
             _Dphi.append(Dphi)
         _Deta.append(Deta)
-        _eta_xd.append(eta_xd)
-        _eta_xdx.append(eta_xdx)
-
-        if dfGP_DQ_Status.shape[0] != 2:
-            acc += 1
-            _error.append(i)
+        _pT_xd.append(pt1)
+        _pT_xdx.append(pt2)
+        _eta_xd.append(eta1)
+        _eta_xdx.append(eta2)
 
     # M_xdxdx, MT_xdxdx = np.array(_M), np.array(_MT)
     # mT_xdxdx, ET_xdxdx = np.array(_mT), np.array(_ET)
@@ -296,12 +306,14 @@ def analyze_xdxdx(GP, status=23):
     data_xdxdx = {"M_xdxdx": _M, "MT_xdxdx": _MT,
                   "mT_xdxdx": _mT, "ET_xdxdx": _ET,
                   "Dphi_xdxdx": _Dphi, "Deta_xdxdx": _Deta,
+                  "pT_xd": _pT_xd, "pT_xdx": _pT_xdx,
                   "eta_xd": _eta_xd, "eta_xdx": _eta_xdx}
     df_xdxdx = pd.DataFrame(data_xdxdx)
     if acc == 0:
-        print("For status = {}, all events only include 2 particles.".format(status))
+        print(
+            f"For status = {status}, all events only include dark quark pair with status {status}.")
     else:
-        print("{} events are over 2 particles.".format(acc))
+        print(f"The length of {acc} events is not equal to 2 particles.")
         print(_error)
     return df_xdxdx
 
