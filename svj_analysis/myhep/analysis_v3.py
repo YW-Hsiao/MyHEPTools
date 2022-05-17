@@ -394,6 +394,63 @@ def dark_sector(GP):
         print("* There is NO 4900022 in this dataset.")
 
 
+# 3-3. Check the existence of neutrinos in a dataset
+def neutrino(GP):
+    """Check the existence of neutrinos (12, 14, 16) in a dataset.
+
+    Parameters
+    ----------
+    GP : DataFrame
+        The DataFrame of each event in a dataset.
+
+    Returns
+    -------
+    p12_s1 : ndarray
+    p14_s1 : ndarray
+    p16_s1 : ndarray
+        Which event includes neutrinos (12, 14, 16) in a dataset.
+    """
+    # p=particle
+    _p12_S1, _p14_S1, _p16_S1 = [], [], []
+    for i in range(GP.length):
+        dfGP = GP.dataframelize(i)
+        dfGP_Status1 = dfGP[dfGP['Status'] == 1]
+        pid_S1 = dfGP_Status1['PID'].to_numpy()
+        # specify PID
+        pid_12_S1 = pid_S1[abs(pid_S1) == 12]
+        pid_14_S1 = pid_S1[abs(pid_S1) == 14]
+        pid_16_S1 = pid_S1[abs(pid_S1) == 16]
+        # 12 electron neutrino
+        if pid_12_S1.shape[0] != 0:
+            _p12_S1.append(i)
+        # 14 muon neutrino
+        if pid_14_S1.shape[0] != 0:
+            _p14_S1.append(i)
+        # 16 tau neutrino
+        if pid_16_S1.shape[0] != 0:
+            _p16_S1.append(i)
+    # 12
+    if len(_p12_S1) != 0:
+        print(
+            f"! {len(_p12_S1)} events have the existence of electron neutrino (12) in final state.")
+    else:
+        print("* There is NO stable electron neutrino (12) in final state.")
+    # 14
+    if len(_p14_S1) != 0:
+        print(
+            f"! {len(_p14_S1)} events have the existence of muon neutrino (14) in final state.")
+    else:
+        print("* There is NO stable muon neutrino (14) in final state.")
+    # 16
+    if len(_p16_S1) != 0:
+        print(
+            f"! {len(_p16_S1)} events have the existence of tau neutrino (16) in final state.")
+    else:
+        print("* There is NO tau neutrino (16) in final state.")
+
+    return np.array(_p12_S1), np.array(_p14_S1), np.array(_p16_S1)
+
+
 ################################################################################
 #                              4. Jet Clustering                               #
 ################################################################################
