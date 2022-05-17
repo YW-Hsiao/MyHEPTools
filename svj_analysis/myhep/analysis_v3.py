@@ -318,6 +318,82 @@ def analyze_xdxdx(GP, status=23):
     return df_xdxdx
 
 
+# 3-2. Check the constituent of dark sector
+def dark_sector(GP):
+    """Check the constituent of dark sector, such as the existence of
+    stable particles 4900101, 4900021, 4900111, 4900113 in final state and
+    the existence of particles 4900102, 4900022.
+
+    Parameters
+    ----------
+    GP : DataFrame
+        The DataFrame of each event in a dataset.
+    """
+    # p=particle
+    _p4900101_S1, _p4900021_S1, _p4900111_S1, _p4900113_S1 = [], [], [], []
+    _p4900102, _p4900022 = [], []
+    for i in range(GP.length):
+        dfGP = GP.dataframelize(i)
+        dfGP_Status1 = dfGP[dfGP['Status'] == 1]
+        pid = dfGP['PID'].to_numpy()
+        pid_S1 = dfGP_Status1['PID'].to_numpy()
+        # specify PID
+        pid_4900101_S1 = pid_S1[abs(pid_S1) == 4900101]
+        pid_4900021_S1 = pid_S1[pid_S1 == 4900021]
+        pid_4900111_S1 = pid_S1[abs(pid_S1) == 4900111]
+        pid_4900113_S1 = pid_S1[abs(pid_S1) == 4900113]
+        pid_4900102 = pid[abs(pid) == 4900102]
+        pid_4900022 = pid[pid == 4900022]
+        # 4900101 & 4900021
+        if pid_4900101_S1.shape[0] != 0:
+            _p4900101_S1.append(i)
+        if pid_4900021_S1.shape[0] != 0:
+            _p4900021_S1.append(i)
+        # 4900111 & 4900113
+        if pid_4900111_S1.shape[0] != 0:
+            _p4900111_S1.append(i)
+        if pid_4900113_S1.shape[0] != 0:
+            _p4900113_S1.append(i)
+        # 4900102 & 4900022
+        if pid_4900102.shape[0] != 0:
+            _p4900102.append(i)
+        if pid_4900022.shape[0] != 0:
+            _p4900022.append(i)
+    # 4900101 & 4900021
+    if len(_p4900101_S1) != 0:
+        print(
+            f"! Event {_p4900101_S1}, there is the existence of particle 4900101 with Status = 1.")
+    else:
+        print("* There is NO stable 4900101 in final state.")
+    if len(_p4900021_S1) != 0:
+        print(
+            f"! Event {_p4900021_S1}, there is the existence of particle 4900021 with Status = 1.")
+    else:
+        print("* There is NO stable 4900021 in final state.")
+    # 4900111 & 4900113
+    if len(_p4900111_S1) != 0:
+        print(
+            f"! Event {_p4900111_S1}, there is the existence of particle 4900111 with Status = 1.")
+    else:
+        print("* There is NO stable 4900111 in final state.")
+    if len(_p4900113_S1) != 0:
+        print(
+            f"! Event {_p4900113_S1}, there is the existence of particle 4900113 with Status = 1.")
+    else:
+        print("* There is NO stable 4900113 in final state.")
+    # 4900102 & 4900022
+    if len(_p4900102) != 0:
+        print(
+            f"! Event {_p4900102}, there is the existence of particle 4900102.")
+    else:
+        print("* There is NO 4900102 in this dataset.")
+    if len(_p4900022) != 0:
+        print(
+            f"! Event {_p4900022}, there is the existence of particle 4900022.")
+    else:
+        print("* There is NO 4900022 in this dataset.")
+
+
 ################################################################################
 #                              4. Jet Clustering                               #
 ################################################################################
