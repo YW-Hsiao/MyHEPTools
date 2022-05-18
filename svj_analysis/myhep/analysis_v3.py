@@ -894,6 +894,51 @@ def analyze_truthJet_MET_scheme1_v1(data_presel, data_met):
     return df_jj_met, df_jjj_met
 
 
+# 5-5. The N_jet and states (pT, eta, phi, mass) of 4 leading jet for each event
+def jet(data_presel):
+    """Collects number of jets (N_jet) and states (pT, eta, phi, mass) of
+    4 leading jets for each event.
+
+    Parameters
+    ----------
+    data_presel : array_like (list)
+        Collects the states (pT, eta, phi, mass) of all preselected events
+        into list data_presel.
+
+    Returns
+    -------
+    df_jet : DataFrame
+        Collects N_jet and (pT, eta, phi, mass) of 4 leading jets for each event.
+    """
+    _jet = []
+    for i in range(len(data_presel)):
+        N_jet = data_presel[i].shape[0]
+        pt, eta = data_presel[i]['pT'], data_presel[i]['eta']
+        phi, mass = data_presel[i]['phi'], data_presel[i]['mass']
+        arr_j = np.array([N_jet])
+        # supply -999 element to fill the each state
+        if N_jet < 4:
+            diff = 4 - N_jet
+            arr_n999 = np.full(diff, -999, dtype=np.float64)
+            pt = np.concatenate((pt, arr_n999), axis=None)
+            eta = np.concatenate((eta, arr_n999), axis=None)
+            phi = np.concatenate((phi, arr_n999), axis=None)
+            mass = np.concatenate((mass, arr_n999), axis=None)
+        arr_j = np.concatenate((arr_j, pt[:4], eta[:4], phi[:4], mass[:4]),
+                               axis=None)
+        _jet.append(arr_j)
+    arr_jet = np.stack(_jet, axis=0)
+    print(f"{arr_jet.shape[0]} events and "
+          f"{int((arr_jet.shape[1] - 1)/4)} leading jet states (pT, eta, phi, mass).")
+    # construct pandas.DataFrame from numpy.ndarray
+    df_jet = pd.DataFrame(arr_jet,
+                          columns=['N_jet', 'pT_1', 'pT_2', 'pT_3', 'pT_4',
+                                   'eta_1', 'eta_2', 'eta_3', 'eta_4',
+                                   'phi_1', 'phi_2', 'phi_3', 'phi_4',
+                                   'mass_1', 'mass_2', 'mass_3', 'mass_4'])
+    return df_jet
+
+
 ################################################################################
 #                   6. Analyze the Jets in the Detector Level                  #
 ################################################################################
