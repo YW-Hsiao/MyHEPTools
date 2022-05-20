@@ -939,6 +939,63 @@ def jet(data_presel):
     return df_jet
 
 
+# 5-6. The N_jet, Dphi between 4 leading jets and MET,
+#      and minimum Dphi between all jets and MET
+def jet_MET(data_presel, data_met):
+    """Collects number of jets (N_jet), azimuthal angle difference between
+    4 leading jet and MET, and minimum azimuthal angle between all jets
+    and MET for each event.
+
+    Parameters
+    ----------
+    data_presel : array_like (list)
+        Collects the states (pT, eta, phi, mass) of all preselected events
+        into list data_presel.
+    data_met : ndarray (np.array(dtype=['MET', 'phi', 'METx', 'METy']))
+        Collects the MET informations (MET, phi, METx, METy) of all events.
+
+    Returns
+    -------
+    df_jet_met : DataFrame
+        Collects N_jet, Dphi_j_MET of 4 leading jets, and min(Dphi_j_MET)
+        of all jet for each event.
+    """
+    _jet_met = []
+    for i in range(len(data_presel)):
+        N_jet = data_presel[i].shape[0]
+        pt, eta = data_presel[i]['pT'], data_presel[i]['eta']
+        phi, mass = data_presel[i]['phi'], data_presel[i]['mass']
+        met, met_phi = data_met['MET'][i], data_met['phi'][i]
+        arr_j_met = np.array([N_jet])
+        # supply Dphi for 0-jet events
+        if N_jet != 0:
+            Dphi = np.absolute(phi - met_phi)
+        else:
+            Dphi = np.full(4, -999, dtype=np.float64)
+        # take minimum angle Dphi for each jet
+        Dphi[Dphi > np.pi] = 2*np.pi - Dphi[Dphi > np.pi]
+        # take minimum Dphi for each event
+        min_Dphi = np.array([np.amin(Dphi)])
+        # supply -999 into Dphi for N_jet < 4 events
+        if N_jet < 4:
+            diff = 4 - N_jet
+            arr_n999 = np.full(diff, -999, dtype=np.float64)
+            Dphi = np.concatenate((Dphi, arr_n999), axis=None)
+        arr_j_met = np.concatenate((arr_j_met, Dphi[:4], min_Dphi),
+                                   axis=None)
+        _jet_met.append(arr_j_met)
+    arr_jet_met = np.stack(_jet_met, axis=0)
+    print(f"{arr_jet_met.shape[0]} events.")
+    print(f"Azimuthal angle difference between 4 leading jets and MET, and "
+          f"minimum azimuthal angle between all jets and MET.")
+    # construct pandas.DataFrame from numpy.ndarray
+    df_jet_met = pd.DataFrame(arr_jet_met,
+                              columns=['N_jet', 'Dphi_j1_MET',
+                                       'Dphi_j2_MET', 'Dphi_j3_MET',
+                                       'Dphi_j4_MET', 'min_Dphi_j_MET'])
+    return df_jet_met
+
+
 ################################################################################
 #                   6. Analyze the Jets in the Detector Level                  #
 ################################################################################
