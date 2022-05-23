@@ -13,6 +13,8 @@ Author: You-Wei Hsiao
 Institute: Department of Physics, National Tsing Hua University, Hsinchu, Taiwan
 Mail: hsiao.phys@gapp.nthu.edu.tw
 History (v.1.0): 2022/04/21 First release.
+History (v.1.1): 2022/05/23 Debug for analyze_xdxdx and filter of selectStableFinalStateParticle.
+                 Add dark_sector, neutrino, jet, jet_MET.
 """
 
 ################################################################################
@@ -126,14 +128,29 @@ print('\n')
 
 
 ################################################################################
-#         3. Analyze the Dark Quark Pair in the Parton and Truth Levels        #
+#           3. Analyze the Dark Sector in the Parton and Truth Levels          #
 ################################################################################
-print("*------  3. Analyze the dark quark pair in the parton "
+print("*------  3. Analyze the dark sector in the parton "
       "and truth levels  ------*")
+print("\n*------  3-1. Dark quark pair  ------*")
 t1 = datetime.datetime.now()
 
 df_xdxdx_23 = myAnal_v3.analyze_xdxdx(GP, status=23)
 df_xdxdx_71 = myAnal_v3.analyze_xdxdx(GP, status=71)
+
+t2 = datetime.datetime.now()
+print("\033[33mTime = {}\033[0m".format(t2 - t1))
+print("\n*------  3-2. Dark sector  ------*")
+t1 = datetime.datetime.now()
+
+myAnal_v3.dark_sector(GP)
+
+t2 = datetime.datetime.now()
+print("\033[33mTime = {}\033[0m".format(t2 - t1))
+print("\n*------  3-3. Neutrino  ------*")
+t1 = datetime.datetime.now()
+
+p12_s1, p14_s1, p16_s1 = myAnal_v3.neutrino(GP)
 
 t2 = datetime.datetime.now()
 print("\033[33mTime = {}\033[0m".format(t2 - t1))
@@ -149,7 +166,9 @@ print("\n*------  4-1. Select stable final state particles without/with "
 t1 = datetime.datetime.now()
 
 SFSP, SFSP_filterDM = myAnal_v3.selectStableFinalStateParticle(
-    GP, filter=[51, -51, 53, -53, 4900211, -4900211, 4900213, -4900213])
+    GP, filter=[51, -51, 53, -53, 4900211, -4900211, 4900213, -4900213,
+                4900101, -4900101, 4900021,
+                12, -12, 14, -14, 16, -16])
 
 t2 = datetime.datetime.now()
 print("\033[33mTime = {}\033[0m".format(t2 - t1))
@@ -176,7 +195,7 @@ print("\n*------  5-1. Preselection  ------*")
 t1 = datetime.datetime.now()
 
 presel_bef, presel_pt, presel_pt_eta, presel_idx = myAnal_v3.preselection_v1(
-    PseudoJet_filterDM, pT_min=20, eta_max=2.5)
+    PseudoJet_filterDM, pT_min=pT_min, eta_max=eta_max)
 
 t2 = datetime.datetime.now()
 print("\033[33mTime = {}\033[0m".format(t2 - t1))
@@ -187,14 +206,28 @@ arr_MET, df_MET = myAnal_v3.MET_visParticles_v1(SFSP_filterDM)
 
 t2 = datetime.datetime.now()
 print("\033[33mTime = {}\033[0m".format(t2 - t1))
-print("\n*------  5-3. Analyze truth jet with scheme 1 & version 2  ------*")
+print("\n*------  5-3. Jet  ------*")
+t1 = datetime.datetime.now()
+
+df_jet = myAnal_v3.jet(presel_pt_eta)
+
+t2 = datetime.datetime.now()
+print("\033[33mTime = {}\033[0m".format(t2 - t1))
+print("\n*------  5-4. Jet and MET  ------*")
+t1 = datetime.datetime.now()
+
+df_jet_MET = myAnal_v3.jet_MET(presel_pt_eta, arr_MET)
+
+t2 = datetime.datetime.now()
+print("\033[33mTime = {}\033[0m".format(t2 - t1))
+print("\n*------  5-5. Analyze truth jet with scheme 1 & version 2  ------*")
 t1 = datetime.datetime.now()
 
 df_N_jet, df_jj, df_jjj = myAnal_v3.analyze_truthJet_scheme1_v2(presel_pt_eta)
 
 t2 = datetime.datetime.now()
 print("\033[33mTime = {}\033[0m".format(t2 - t1))
-print("\n*------  5-4. Analyze truth jet and MET with scheme 1 "
+print("\n*------  5-6. Analyze truth jet and MET with scheme 1 "
       "& version 1  ------*")
 t1 = datetime.datetime.now()
 
@@ -234,11 +267,15 @@ file = f"_rinv{int(rinv * 10)}_Lambdad{Lambda_d}_{remark}"
 df_xdxdx_23.to_csv(OUTPUT_PATH + "/status23" + file + ".csv", index=False)
 df_xdxdx_71.to_csv(OUTPUT_PATH + "/status71" + file + ".csv", index=False)
 df_MET.to_csv(OUTPUT_PATH + "/met" + file + ".csv", index=False)
+df_jet.to_csv(OUTPUT_PATH + "/jet" + file + ".csv", index=False)
+df_jet_MET.to_csv(OUTPUT_PATH + "/jet_met" + file + ".csv", index=False)
 df_N_jet.to_csv(OUTPUT_PATH + "/n_jet" + file + ".csv", index=False)
 df_jj.to_csv(OUTPUT_PATH + "/jj" + file + ".csv", index=False)
 df_jjj.to_csv(OUTPUT_PATH + "/jjj" + file + ".csv", index=False)
 df_jj_MET.to_csv(OUTPUT_PATH + "/jj_met" + file + ".csv", index=False)
 df_jjj_MET.to_csv(OUTPUT_PATH + "/jjj_met" + file + ".csv", index=False)
+np.savez_compressed(OUTPUT_PATH + "/neutrinos" + file + ".npz",
+                    nu12=p12_s1, nu14=p14_s1, nu16=p16_s1)
 np.savez_compressed(OUTPUT_PATH + "/weight" + file + ".npz",
                     weight_1=event_weight_1, weight_2=event_weight_2)
 print('\n')
