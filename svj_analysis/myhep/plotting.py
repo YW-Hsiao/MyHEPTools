@@ -7,6 +7,7 @@ Institute: Department of Physics, National Tsing Hua University, Hsinchu, Taiwan
 Mail: hsiao.phys@gapp.nthu.edu.tw
 History (v.3.0): 2022/05/06 First release, create plotting_basic function.
 History (v.3.1): 2022/05/13 Debug minor locator when y-axis is 'log' scale.
+History (v.3.2): 2022/05/24 Upgrade minor locator to be general.
 """
 
 
@@ -140,7 +141,7 @@ def plotting_basic(obs, dataset, binning, data_color, data_label,
 # *    b. the same or different weights: len(df_1) != len(df_2) != ...
 # *       weight=[[weight_1], [weight_2], ...]
 # *       selected=[[array_like_1=len(df_1)], [array_like_2=len(df_2)], ...]
-# History (v.2.0): 20220524, upgrade minor locator to be general.
+# History (v.3.2): upgrade minor locator to be general, so I delete the remarks:
 # y_minor_multiple_base : float, default 0.1
 #     Set a tick on each integer multiple of a base within the view interval.
 # y_minor_log_subs : str or None or sequence of float, default 'auto'
