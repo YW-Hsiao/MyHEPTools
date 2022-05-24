@@ -140,12 +140,19 @@ def plotting_basic(obs, dataset, binning, data_color, data_label,
 # *    b. the same or different weights: len(df_1) != len(df_2) != ...
 # *       weight=[[weight_1], [weight_2], ...]
 # *       selected=[[array_like_1=len(df_1)], [array_like_2=len(df_2)], ...]
+# History (v.2.0): 20220524, upgrade minor locator to be general.
+# y_minor_multiple_base : float, default 0.1
+#     Set a tick on each integer multiple of a base within the view interval.
+# y_minor_log_subs : str or None or sequence of float, default 'auto'
+#     Determine the tick locations for log axes.
+#     Gives the multiples of integer powers of the base at which to place ticks.
 def plotting(obs, dataset, binning, data_color, data_label, weight=None,
              selected=[], histtype='step', align='mid', where='post',
              figsize=(7, 7), suptitle=None, set_title='set_title',
              legend_loc='upper right', legend_bbox_to_anchor=(1, 1),
              xlabel=r'$x$', ylabel=r'$y$', yscale='linear',
-             y_minor_multiple_base=1.0, y_minor_log_subs='auto',
+             x_minor_locator=AutoMinorLocator(),
+             y_minor_locator=MultipleLocator(base=1.0),
              xlim=None, ylim=None,
              text=[], text_xy=(0.1, 0.9), savefig="figure.pdf"):
     """
@@ -207,11 +214,10 @@ def plotting(obs, dataset, binning, data_color, data_label, weight=None,
         Set the y-axis scale.
         The strings {"linear", "log", "symlog", "logit", ...} are the axis scale
         type to apply.
-    y_minor_multiple_base : float, default 0.1
-        Set a tick on each integer multiple of a base within the view interval.
-    y_minor_log_subs : str or None or sequence of float, default 'auto'
-        Determine the tick locations for log axes.
-        Gives the multiples of integer powers of the base at which to place ticks.
+    x_minor_locator : locator (class), default AutoMinorLocator()
+        Set the locator of the minor ticker.
+    y_minor_locator : locator (class), default MultipleLocator(base=1.0)
+        Set the locator of the minor ticker.
     xlim : tuple (float, float), optional, by default None
         Set the x-axis view limits (left, right).
     ylim : tuple (float, float), optional, by default None
@@ -281,11 +287,13 @@ def plotting(obs, dataset, binning, data_color, data_label, weight=None,
     ax.set_xlim(xlim)
     ax.set_ylim(ylim)
     # the appearance of ticks, tick labels, and gridlines of the Axes
-    ax.xaxis.set_minor_locator(AutoMinorLocator())
-    if ax.get_yscale() == 'log':
-        ax.yaxis.set_minor_locator(LogLocator(base=10, subs=y_minor_log_subs))
-    else:
-        ax.yaxis.set_minor_locator(MultipleLocator(base=y_minor_multiple_base))
+    ax.xaxis.set_minor_locator(x_minor_locator)
+    ax.yaxis.set_minor_locator(y_minor_locator)
+    # y_minor_multiple_base=1.0, y_minor_log_subs='auto'
+    # if ax.get_yscale() == 'log':
+    # ax.yaxis.set_minor_locator(LogLocator(base=10, subs=y_minor_log_subs))
+    # else:
+    # ax.yaxis.set_minor_locator(MultipleLocator(base=y_minor_multiple_base))
     ax.tick_params(which='both', direction='in', top=True, right=True)
     ax.tick_params(which='major', length=7, width=1.2, labelsize=12)
     ax.tick_params(which='minor', length=4)
