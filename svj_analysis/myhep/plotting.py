@@ -8,6 +8,7 @@ Mail: hsiao.phys@gapp.nthu.edu.tw
 History (v.3.0): 2022/05/06 First release, create plotting_basic function.
 History (v.3.1): 2022/05/13 Debug minor locator when y-axis is 'log' scale.
 History (v.3.2): 2022/05/24 Upgrade minor locator to be general.
+History (v.3.3): 2022/05/26 Add density function into plotting.
 """
 
 
@@ -147,8 +148,9 @@ def plotting_basic(obs, dataset, binning, data_color, data_label,
 # y_minor_log_subs : str or None or sequence of float, default 'auto'
 #     Determine the tick locations for log axes.
 #     Gives the multiples of integer powers of the base at which to place ticks.
-def plotting(obs, dataset, binning, data_color, data_label, weight=None,
-             selected=[], histtype='step', align='mid', where='post',
+def plotting(obs, dataset, binning, data_color, data_label,
+             density=False, weight=None, selected=[],
+             histtype='step', align='mid', where='post',
              figsize=(7, 7), suptitle=None, set_title='set_title',
              legend_loc='upper right', legend_bbox_to_anchor=(1, 1),
              xlabel=r'$x$', ylabel=r'$y$', yscale='linear',
@@ -173,6 +175,11 @@ def plotting(obs, dataset, binning, data_color, data_label, weight=None,
         Color of dataset ['red', 'blue', ...].
     data_label : array_like
         Label of dataset ['label 1', 'label 2', ...].
+    density : bool, optional, default: False
+        If False, the result will contain the number of samples in each bin.
+        If True, the result is the value of the probability density function
+        at the bin, normalized such that the area under the histogram integrates
+        to 1.
     weight : array_like or list, optional, by default None
         Event weight.
         An array of weights is the same shape as `dataset` and
@@ -246,22 +253,25 @@ def plotting(obs, dataset, binning, data_color, data_label, weight=None,
     # 2. plot
     if len(selected) == 0:
         for i, data in enumerate(dataset):
-            ax.hist(data[obs], bins=binning, weights=weight,
+            ax.hist(data[obs], bins=binning, density=density, weights=weight,
                     histtype=histtype, align=align,
                     color=data_color[i], label=data_label[i])
             hist, bins = np.histogram(data[obs].to_numpy(),
-                                      bins=binning, weights=weight)
+                                      bins=binning, weights=weight,
+                                      density=density)
         #     ax.step(bins[:-1], hist, where=where,
             #     color=data_color[i], label=data_label[i],
             #     linestyle=(0, (5, 5)))
             _hist.append(hist)
     else:
         for i, data in enumerate(dataset):
-            ax.hist(data[obs], bins=binning, weights=weight[i][selected[i]],
+            ax.hist(data[obs], bins=binning, density=density,
+                    weights=weight[i][selected[i]],
                     histtype=histtype, align=align,
                     color=data_color[i], label=data_label[i])
             hist, bins = np.histogram(data[obs].to_numpy(), bins=binning,
-                                      weights=weight[i][selected[i]])
+                                      weights=weight[i][selected[i]],
+                                      density=density)
         #     ax.step(bins[:-1], hist, where=where,
             #     color=data_color[i], label=data_label[i],
             #     linestyle=(0, (5, 5)))
