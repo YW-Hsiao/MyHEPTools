@@ -10,6 +10,7 @@ History (v.3.1): 2022/05/13 Debug minor locator when y-axis is 'log' scale.
 History (v.3.2): 2022/05/24 Upgrade minor locator to be general.
 History (v.3.3): 2022/05/26 Add density function into plotting.
 History (v.3.4): 2022/05/31 Add x- and y-axis major locator.
+                            Change yminor_locator default.
 """
 
 
@@ -159,7 +160,7 @@ def plotting(obs, dataset, binning, data_color, data_label,
              xmajor_locator=AutoLocator(),
              xminor_locator=AutoMinorLocator(),
              ymajor_locator=AutoLocator(),
-             yminor_locator=MultipleLocator(base=1.0),
+             yminor_locator=AutoMinorLocator(),
              xlim=None, ylim=None,
              text=[], text_xy=(0.1, 0.9), savefig="figure.pdf"):
     """
@@ -232,7 +233,7 @@ def plotting(obs, dataset, binning, data_color, data_label,
         Set the locator of the minor ticker.
     ymajor_locator : locator (class), default AutoLocator()
         Set the locator of the major ticker.
-    yminor_locator : locator (class), default MultipleLocator(base=1.0)
+    yminor_locator : locator (class), default AutoMinorLocator()
         Set the locator of the minor ticker.
     xlim : tuple (float, float), optional, by default None
         Set the x-axis view limits (left, right).
