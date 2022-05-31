@@ -9,6 +9,7 @@ History (v.3.0): 2022/05/06 First release, create plotting_basic function.
 History (v.3.1): 2022/05/13 Debug minor locator when y-axis is 'log' scale.
 History (v.3.2): 2022/05/24 Upgrade minor locator to be general.
 History (v.3.3): 2022/05/26 Add density function into plotting.
+History (v.3.4): 2022/05/31 Add x- and y-axis major locator.
 """
 
 
@@ -21,6 +22,7 @@ History (v.3.3): 2022/05/26 Add density function into plotting.
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib.ticker import (AutoLocator, MaxNLocator)
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator, LogLocator)
 
 
@@ -154,8 +156,10 @@ def plotting(obs, dataset, binning, data_color, data_label,
              figsize=(7, 7), suptitle=None, set_title='set_title',
              legend_loc='upper right', legend_bbox_to_anchor=(1, 1),
              xlabel=r'$x$', ylabel=r'$y$', yscale='linear',
-             x_minor_locator=AutoMinorLocator(),
-             y_minor_locator=MultipleLocator(base=1.0),
+             xmajor_locator=AutoLocator(),
+             xminor_locator=AutoMinorLocator(),
+             ymajor_locator=AutoLocator(),
+             yminor_locator=MultipleLocator(base=1.0),
              xlim=None, ylim=None,
              text=[], text_xy=(0.1, 0.9), savefig="figure.pdf"):
     """
@@ -222,9 +226,13 @@ def plotting(obs, dataset, binning, data_color, data_label,
         Set the y-axis scale.
         The strings {"linear", "log", "symlog", "logit", ...} are the axis scale
         type to apply.
-    x_minor_locator : locator (class), default AutoMinorLocator()
+    xmajor_locator : locator (class), default AutoLocator()
+        Set the locator of the major ticker.
+    xminor_locator : locator (class), default AutoMinorLocator()
         Set the locator of the minor ticker.
-    y_minor_locator : locator (class), default MultipleLocator(base=1.0)
+    ymajor_locator : locator (class), default AutoLocator()
+        Set the locator of the major ticker.
+    yminor_locator : locator (class), default MultipleLocator(base=1.0)
         Set the locator of the minor ticker.
     xlim : tuple (float, float), optional, by default None
         Set the x-axis view limits (left, right).
@@ -298,8 +306,10 @@ def plotting(obs, dataset, binning, data_color, data_label,
     ax.set_xlim(xlim)
     ax.set_ylim(ylim)
     # the appearance of ticks, tick labels, and gridlines of the Axes
-    ax.xaxis.set_minor_locator(x_minor_locator)
-    ax.yaxis.set_minor_locator(y_minor_locator)
+    ax.xaxis.set_major_locator(xmajor_locator)
+    ax.xaxis.set_minor_locator(xminor_locator)
+    ax.yaxis.set_major_locator(ymajor_locator)
+    ax.yaxis.set_minor_locator(yminor_locator)
     # y_minor_multiple_base=1.0, y_minor_log_subs='auto'
     # if ax.get_yscale() == 'log':
     # ax.yaxis.set_minor_locator(LogLocator(base=10, subs=y_minor_log_subs))
