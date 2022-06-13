@@ -11,6 +11,7 @@ History (v.3.2): 2022/05/24 Upgrade minor locator to be general.
 History (v.3.3): 2022/05/26 Add density function into plotting.
 History (v.3.4): 2022/05/31 Add x- and y-axis major locator.
                             Change yminor_locator default.
+History (v.3.5): 2022/06/09 Add function of checking normalized to 1. 
 """
 
 
@@ -154,6 +155,8 @@ def plotting_basic(obs, dataset, binning, data_color, data_label,
 def plotting(obs, dataset, binning, data_color, data_label,
              density=False, weight=None, selected=[],
              histtype='step', align='mid', where='post',
+             check_normalized_to_1=False,
+             weight_normal=None,
              figsize=(7, 7), suptitle=None, set_title='set_title',
              legend_loc='upper right', legend_bbox_to_anchor=(1, 1),
              xlabel=r'$x$', ylabel=r'$y$', yscale='linear',
@@ -192,6 +195,8 @@ def plotting(obs, dataset, binning, data_color, data_label,
         Another case is that a weight list [weight 1, weight 2 ,...] collects
         multiple arrays of weights and each weight must be the same shape as
         corresponding dataset.
+        For normalized to 1, list weight=
+        [weight_1/np.sum(weight_1), weight_2/np.sum(weight_2), ...]
     selected : list, optional, by default []
         Selected event numbering. A list [selected 1, selected 2, ...] collects
         multiple arrays of selected events and it is used when multiple datasets
@@ -203,6 +208,12 @@ def plotting(obs, dataset, binning, data_color, data_label,
         The horizontal alignment of the histogram bars.
     where : {'pre', 'post', 'mid'}, optional, by default 'post'
         Define where the steps should be placed.
+    check_normalized_to_1 : bool, optional, default: False
+        If True, plot normalized histogram by using ax.step() to check diagram,
+        the height of each bin = counts/sum(counts).
+        It's different from density=True when bins != 1.
+    weight_normal : array_like or list, optional, default: None
+        It is the same as ordinary weight and doesn't divide by total weight.
     figsize : tuple (float, float), optional, by default (10, 10)
         Width, height in inches.
     suptitle : str, optional, by default None
@@ -291,6 +302,23 @@ def plotting(obs, dataset, binning, data_color, data_label,
             # color=data_color[i], label=data_label[i], alpha=0.3)
         # hist, bins = np.histogram(data[obs].to_numpy(), bins=binning, weights=weight)
         # ax.step(bins[:-1], hist, where='post', color=data_color[i], label=data_label[i])
+    # check normalized to 1
+    if check_normalized_to_1 == True:
+        if len(selected) == 0:
+            for i, data in enumerate(dataset):
+                hist_normalized, bins_normalized = np.histogram(
+                    data[obs].to_numpy(), bins=binning, weights=weight_normal)
+                ax.step(bins_normalized[:-1], hist_normalized/np.sum(hist_normalized),
+                        where=where, color=data_color[i], label=data_label[i],
+                        linestyle=(0, (5, 5)), linewidth=3)
+        else:
+            for i, data in enumerate(dataset):
+                hist_normalized, bins_normalized = np.histogram(
+                    data[obs].to_numpy(), bins=binning,
+                    weights=weight_normal[i][selected[i]])
+                ax.step(bins_normalized[:-1], hist_normalized/np.sum(hist_normalized),
+                        where=where, color=data_color[i], label=data_label[i],
+                        linestyle=(0, (5, 5)), linewidth=3)
 
     # 3. customize plot
     # figure title
